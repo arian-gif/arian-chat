@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at 60% 65%, #acecf7 0%, #f3e7ff 80%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #183153;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chat-wrap {
+      background: rgba(255,255,255,0.88);
+      border-radius: 40px 12px 40px 12px;
+      box-shadow: 0 8px 40px 0 rgba(51,86,153,0.08);
+      width: 100%;
+      max-width: 400px;
+      min-height: 550px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 2px solid #e8dbfb;
+    }
+    .chat-header {
+      background: linear-gradient(90deg, #a881e6 0%, #36c3f2 100%);
+      color: white;
+      text-align: left;
+      padding: 1.3rem 1.7rem 1.1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      background: transparent;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .bubble-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.6rem;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .bubble.user {
+      margin-left: auto;
+      background: linear-gradient(120deg, #73f2db 0%, #32b5f9 100%);
+      color: white;
+      border-radius: 26px 26px 8px 26px;
+      padding: 0.73rem 1.13rem;
+      font-size: 1.03rem;
+      box-shadow: 0 2px 12px rgba(50,181,249,0.10);
+      max-width: 72%;
+      word-break: break-word;
+    }
+    .bubble.bot {
+      margin-right: auto;
+      background: #eae6fa;
+      color: #60699b;
+      border-radius: 26px 26px 26px 8px;
+      padding: 0.73rem 1.13rem;
+      font-size: 1.03rem;
+      box-shadow: 0 2px 12px rgba(150, 120, 250, 0.09);
+      max-width: 72%;
+      word-break: break-word;
+    }
+    .avatar {
+      width: 33px;
+      height: 33px;
+      border-radius: 50%;
+      background: #36c3f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 0 0 2px #fff;
+      font-size: 1rem;
+    }
+    .avatar.bot {
+      background: #b295eb;
+      color: #fff;
+    }
+    .avatar.user {
+      background: linear-gradient(135deg,#59eee5,#47bafd 70%);
+      color: #fff;
+    }
+    .chat-input-area {
+      display: flex;
+      align-items: center;
+      background: #faf8fd;
+      padding: 1.18rem 1.15rem;
+      border-top: 1px solid #ede9fa;
+      gap: 0.7rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .chat-input {
+      flex: 1;
+      border-radius: 1.4em;
+      padding: 0.72em 1em;
+      border: 1.5px solid #d8c7fa;
+      font-size: 1rem;
+      background: #fff;
+      outline: none;
+      resize: none;
+      box-shadow: none;
+      transition: border 0.2s;
+      font-family: inherit;
+      text-align: left;
+    }
+    .chat-input:focus {
+      border: 1.5px solid #a881e6;
+    }
+    .chat-send-btn {
+      background: linear-gradient(135deg,#36c3f2,#a881e6);
+      border: none;
+      color: white;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      font-weight: 600;
+      cursor: not-allowed;
+      opacity: 0.5;
+      transition: box-shadow 0.18s;
+      box-shadow: 0 4px 18px rgba(168,129,230,0.11);
+    }
+    @media (max-width:540px) {
+      .chat-wrap {
+        width: 100vw;
+        min-height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        border: none;
+      }
+      body {
+        align-items: stretch;
+        justify-content: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="chat-wrap">
+    <header class="chat-header">Arian's Chat</header>
+    <section class="chat-messages">
+      <div id="chat-container">
+      {% for chat in chat_data %}
+        <div class="bubble-row">
+          {% if chat.sender == 'bot' %}
+            <div class="avatar bot">🤖</div>
+            <div class="bubble bot">{{ chat.message }}</div>
+          {% else %}
+            <div class="bubble user">{{ chat.message }}</div>
+            <div class="avatar user">U</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    </section>
+    <form method="POST" class="chat-input-area" autocomplete="off" onsubmit="handleSubmit(event)">
+      <textarea
+        name="message"
+        class="chat-input"
+        rows="1"
+        placeholder="Type your message..."
+        oninput="toggleButton(this)">
+      </textarea>
+      <button class="chat-send-btn" id="sendBtn" type="submit" disabled>➤</button>
+    </form>
+  </main>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+  function toggleButton(textarea) {
+    const sendBtn = document.getElementById("sendBtn");
+    sendBtn.disabled = textarea.value.trim() === "";
+  }
+async function handleSubmit(event) {
+  event.preventDefault();
+
+  const textarea = document.querySelector(".chat-input");
+  const sendBtn = document.getElementById("sendBtn");
+  const message = textarea.value.trim();
+
+  if (!message) return;
+  sendBtn.disabled = true;
+
+  // Add user's message to the DOM
+  appendMessage("user", message);
+
+  try {
+    const response = await axios.post("/chat", { message });
+    const reply = response.data.reply;
+
+    // Add bot's reply to the DOM
+    appendMessage("bot", reply);
+
+    textarea.value = "";
+  } catch (error) {
+    console.error("Error sending message:", error);
+    alert("Failed to send message.");
+  } finally {
+    toggleButton(textarea);
+  }
+}
+
+function appendMessage(sender, message) {
+  const chatContainer = document.getElementById("chat-container");
+
+  const row = document.createElement("div");
+  row.className = "bubble-row";
+
+  const bubble = document.createElement("div");
+  bubble.className = `bubble ${sender}`;
+  bubble.textContent = message;
+
+  const avatar = document.createElement("div");
+  avatar.className = `avatar ${sender}`;
+  avatar.textContent = sender === "bot" ? "🤖" : "U";
+
+  if (sender === "bot") {
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+  } else {
+    row.appendChild(bubble);
+    row.appendChild(avatar);
+  }
+
+  chatContainer.appendChild(row);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+</script>
+</body>
+</html>
