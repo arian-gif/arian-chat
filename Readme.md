@@ -2,6 +2,11 @@
 
 This is a simple AI chatbot web application built using **Flask** and **Google's Gemini API** (via `google.generativeai`). It features a web UI where users can chat with an AI assistant. The chat interface mimics a messaging app with user and bot message bubbles.
 
+## 🌐 Live Website
+
+Check out the live version of the app here:  
+👉 https://arian-chat.onrender.com/
+
 ## 🛠️ Features
 
 - Interactive chatbot interface
